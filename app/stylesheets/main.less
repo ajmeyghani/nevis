@@ -1,0 +1,62 @@
+@import './photon.less';
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+}
+
+a {
+    text-decoration: none;
+}
+
+.container {
+    text-align: center;
+}
+
+.subtitle {
+    color: gray;
+}
+
+#pad {
+  width: 100%;
+  height: 100vh;
+  resize: none;
+  border: none;
+  outline: none;
+}
+
+.pane.pane-sm.sidebar {
+  position: relative;
+}
+
+.sidebar.sidebar-open, .sidebar.sidebar-closed {
+  transition: all ease-in-out 250ms;
+}
+
+.sidebar.sidebar-closed {
+  min-width: 37px;
+  max-width: 37px;
+}
+
+.sidebar.sidebar-open {
+  max-width: 200px;
+}
+
+.flyout-icon {
+  right: 10px;
+  position: absolute;
+  font-size: 23px;
+  top: 0;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.6;
+  }
+}

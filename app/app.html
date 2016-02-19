@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Nevis</title>
+    <link href="/build/stylesheets/main.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+    const remote = require('electron').remote;
+    const path = remote.require('path');
+    const fs = remote.require('fs');
+
+    </script>
+    <script src="/node_modules/jquery/dist/jquery.js" onload="window.$ = window.jQuery = module.exports;"></script>
+    <script src="/vendor/electron_boilerplate/context_menu.js"></script>
+    <script src="/vendor/electron_boilerplate/external_links.js"></script>
+    <script src="/node_modules/socket.io-client/socket.io.js"></script>
+    <script src="/build/app.js"></script>
+    <script type="text/javascript">
+
+    const app = remote.app;
+    const Menu = remote.Menu;
+    const MenuItem = remote.MenuItem;
+    const dialog = remote.dialog;
+    var template = [
+      {
+        label: 'File',
+        submenu: [
+          {
+            label: 'Open',
+            accelerator: 'CmdOrCtrl+o',
+            click: () => { dialog.showOpenDialog({ properties: [ 'openFile', 'openDirectory', 'multiSelections' ]}, function (dir) {
+              console.log(dir);
+              // fs.readFile(dir[0], 'utf-8', function (err, data) {
+              //   console.log(data);
+              // });
+            })}
+          },
+          {
+            label: 'New File',
+            accelerator: 'CmdOrCtrl+n',
+            click: () => { console.log('Making a new file...'); }
+          },
+          {
+            label: 'Save',
+            accelerator: 'CmdOrCtrl+s',
+            click: () => { console.log('File saved ....'); }
+          },
+          {
+            label: 'Save File As ...',
+            accelerator: 'CmdOrCtrl+shift+s',
+            click: () => { console.log('File saving as ....'); }
+          }
+        ]
+        },
+        {
+        label: 'Edit',
+        submenu: [
+          {
+            label: 'Undo',
+            accelerator: 'CmdOrCtrl+Z',
+            role: 'undo'
+          },
+          {
+            label: 'Redo',
+            accelerator: 'Shift+CmdOrCtrl+Z',
+            role: 'redo'
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Cut',
+            accelerator: 'CmdOrCtrl+X',
+            role: 'cut'
+          },
+          {
+            label: 'Copy',
+            accelerator: 'CmdOrCtrl+C',
+            role: 'copy'
+          },
+          {
+            label: 'Paste',
+            accelerator: 'CmdOrCtrl+V',
+            role: 'paste'
+          },
+          {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            role: 'selectall'
+          },
+        ]
+      },
+      {
+        label: 'View',
+        submenu: [
+          {
+            label: 'Reload',
+            accelerator: 'CmdOrCtrl+R',
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.reload();
+            }
+          },
+          {
+            label: 'Toggle Full Screen',
+            accelerator: (function() {
+              if (process.platform == 'darwin')
+                return 'Ctrl+Command+F';
+              else
+                return 'F11';
+            })(),
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+            }
+          },
+          {
+            label: 'Toggle Developer Tools',
+            accelerator: (function() {
+              if (process.platform == 'darwin')
+                return 'Alt+Command+I';
+              else
+                return 'Ctrl+Shift+I';
+            })(),
+            click: function(item, focusedWindow) {
+              if (focusedWindow)
+                focusedWindow.toggleDevTools();
+            }
+          },
+        ]
+      },
+      {
+        label: 'Window',
+        role: 'window',
+        submenu: [
+          {
+            label: 'Minimize',
+            accelerator: 'CmdOrCtrl+M',
+            role: 'minimize'
+          },
+          {
+            label: 'Close',
+            accelerator: 'CmdOrCtrl+W',
+            role: 'close'
+          },
+        ]
+      },
+      {
+        label: 'Help',
+        role: 'help',
+        submenu: [
+          {
+            label: 'Learn More',
+            click: function() { require('electron').shell.openExternal('http://electron.atom.io') }
+          },
+        ]
+      },
+    ];
+
+    if (process.platform === 'darwin') {
+      var name = app.getName();
+      template.unshift({
+        label: name,
+        submenu: [
+          {
+            label: 'About ' + name,
+            role: 'about'
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Services',
+            role: 'services',
+            submenu: []
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Hide ' + name,
+            accelerator: 'Command+H',
+            role: 'hide'
+          },
+          {
+            label: 'Hide Others',
+            accelerator: 'Command+Shift+H',
+            role: 'hideothers'
+          },
+          {
+            label: 'Show All',
+            role: 'unhide'
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Quit',
+            accelerator: 'Command+Q',
+            click: function() { app.quit(); }
+          },
+        ]
+      });
+      // Window menu.
+      template[3].submenu.push(
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Bring All to Front',
+          role: 'front'
+        }
+      );
+    }
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+
+    </script>
+</head>
+<body>
+  <div class="window">
+
+    <!-- .toolbar-header sits at the top of your app -->
+    <header class="toolbar toolbar-header">
+      <!-- <h1 class="title">Header with actions</h1> -->
+
+      <div class="toolbar-actions">
+        <div class="btn-group">
+          <button class="btn btn-default">
+            <span class="icon icon-home"></span>
+          </button>
+          <button class="btn btn-default">
+            <span class="icon icon-folder"></span>
+          </button>
+          <button class="btn btn-default active">
+            <span class="icon icon-cloud"></span>
+          </button>
+          <button class="btn btn-default">
+            <span class="icon icon-popup"></span>
+          </button>
+          <button class="btn btn-default">
+            <span class="icon icon-shuffle"></span>
+          </button>
+        </div>
+
+        <button class="btn btn-default">
+          <span class="icon icon-home icon-text"></span>
+          Filters
+        </button>
+
+        <button class="btn btn-default btn-dropdown pull-right">
+          <span class="icon icon-megaphone"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Your app's content goes inside .window-content -->
+    <div class="window-content">
+      <div class="pane-group">
+        <div class="pane pane-sm sidebar sidebar-closed" id="js-sidebar">
+        <span class="icon icon-menu flyout-icon" id="js-flyout-menu"></span>
+        <nav class="nav-group" id="js-sidebar-content">
+          <h5 class="nav-group-title">Files</h5>
+          <a class="nav-group-item active">
+            <span class="icon icon-home"></span>
+            Home
+          </a>
+          <span class="nav-group-item">
+            <span class="icon icon-download"></span>
+            Downloads
+          </span>
+        </nav>
+        </div>
+        <div class="pane">
+          <textarea id="pad"></textarea>
+        </div>
+        <div class="pane" style="padding-left: 20px">
+        <div id="markdown">
+
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<!--
+related
+
+https://github.com/atom/electron/issues/345
+
+ mainWindow.webContents.on('did-start-loading', function() {
+    mainWindow.webContents.executeJavaScript("var $ = jQuery = require('jquery'), mainWindow = require('remote').getCurrentWindow();");
+  });
+
+strnage solution for jquery
+<script src="/node_modules/jquery/dist/jquery.js" onload="window.$ = window.jQuery = module.exports;"></script>
+ -->
