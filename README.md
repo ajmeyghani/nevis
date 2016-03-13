@@ -1,7 +1,11 @@
 # Nevis
 
-A desktop app help students write papers easier. Nevis means to write in Persian. It also happens to be a Caribbean island as well.
+A desktop app to help students write papers more easily.
 
-(Under Development) ...
+**Work In Progress**
+
+## About
+
+In Persian, Nevis means to write. Navis also happens to be the name of a Caribbean island.
 
 ![Screenshot](./nevis.gif)
